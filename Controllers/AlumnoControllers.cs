@@ -5,27 +5,27 @@ namespace PracticaParcial.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AlumnoControllers : ControllerBase
+public class StudentControllers : ControllerBase
 {
-    private readonly ILogger<AlumnoControllers> _logger;
+    private readonly ILogger<StudentControllers> _logger;
 
-    public AlumnoControllers(ILogger<AlumnoControllers> logger)
+    public StudentControllers(ILogger<StudentControllers> logger)
     {
         _logger = logger;
     }
 
-    private static readonly List<Alumno> alumnos = new();
+    private static readonly List<Student> students = new();
 
     [HttpGet]
     public IActionResult GetAll()
     {
         try
         {
-            if(alumnos.Count == 0)
+            if(students.Count == 0)
             {
                 return NotFound("No hay alumnos registrados");
             }
-            return Ok(alumnos);
+            return Ok(students);
         }
         catch(Exception ex)
         {
@@ -38,14 +38,14 @@ public class AlumnoControllers : ControllerBase
     {
         try
         {
-            var resultado = alumnos.FirstOrDefault(a => a.Id == Id);
+            var result = students.FirstOrDefault(a => a.Id == Id);
 
-            if(resultado is null)
+            if(result is null)
             {
                 return BadRequest("El alumno no existe.");
             }  
 
-            return Ok(resultado);
+            return Ok(result);
         }
         catch(Exception ex)
         {
@@ -54,20 +54,42 @@ public class AlumnoControllers : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] Alumno nuevoAlumno)
+    public IActionResult Create([FromBody] Student newStudent)
     {
         try
         {
-            var ValidacionId = alumnos.FirstOrDefault(a => a.Id == nuevoAlumno.Id);
-            var ValidacionDni = alumnos.FirstOrDefault(a => a.Dni == nuevoAlumno.Dni);
+            Student idValidation = students.FirstOrDefault(s => s.Id == newStudent.Id);
 
-            if(ValidacionId is null && ValidacionDni is null)
+            if(idValidation is not null)
             {
-                alumnos.Add(nuevoAlumno);
-                return Ok("Alumno creado con exito.");
+                return Conflict("Ya existe un alumno con ese id.");
             }
-            
-            return Conflict("El alumno ya existe.");
+
+            Student dniValidation = students.FirstOrDefault(s => s.Dni == newStudent.Dni);
+
+            if(dniValidation is not null)
+            {
+                return Conflict("Ya existe un alumno con ese dni.");
+            }
+
+            if(newStudent.Age < 16)
+            {
+                return BadRequest("El alumno debe ser mayor o igual a 16 años");
+            }
+
+            if(newStudent.Name is null || newStudent.Name == "" || newStudent.Name == "string")
+            {
+                return BadRequest("El alumno debe rsgistrar un nombre.");
+            }
+
+            if(newStudent.Surname is null || newStudent.Surname == "" || newStudent.Surname == "string")
+            {
+                return BadRequest("El alumno debe rsgistrar un apellido.");
+            }
+
+            students.Add(newStudent);
+
+            return Ok("Alumno agregado exitosamente.");
         }
         catch(Exception ex)
         {
@@ -75,5 +97,73 @@ public class AlumnoControllers : ControllerBase
         }
     }
 
-    //[http]
+    [HttpPut("{Id}")]
+    public IActionResult Update([FromBody] Student StudentModificado, int Id)
+    {
+        try
+        {
+            Student student = students.FirstOrDefault(s => s.Id == Id);
+
+            if (student is null)
+            {
+                return NotFound("El alumno no existe.");
+            }  
+
+            bool dniAlreadyExists = students.Any(s => s.Dni == StudentModificado.Dni && s.Id != Id);
+
+            if (dniAlreadyExists)
+            {
+                return Conflict("Ya existe un alumno con ese dni.");
+            }
+
+            if (StudentModificado.Age < 16)
+            {
+                return BadRequest("El alumno debe ser mayor o igual a 16 años");
+            }
+
+            if (string.IsNullOrWhiteSpace(StudentModificado.Name) || StudentModificado.Name == "string")
+            {
+                return BadRequest("El alumno debe registrar un nombre.");
+            }
+
+            if (string.IsNullOrWhiteSpace(StudentModificado.Surname) || StudentModificado.Surname == "string")
+            {
+                return BadRequest("El alumno debe registrar un apellido.");
+            }
+
+            student.Name = StudentModificado.Name;
+            student.Surname = StudentModificado.Surname;
+            student.Dni = StudentModificado.Dni;
+            student.Age = StudentModificado.Age;
+            student.Email = StudentModificado.Email;
+
+            return Ok("Alumno modificado exitosamente.");
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, $"Ocurrio un problema en el servidor {ex.Message}");
+        }
+    }
+
+    [HttpDelete]
+    public IActionResult Delete(int id)
+    {
+        try
+        {
+            bool exists = students.Any(s => s.Id == id);
+
+            if (exists)
+            {
+                Student delete = students.FirstOrDefault(s => s.Id == id);
+                students.Remove(delete);
+                return Ok("Alumno removido exitosamente.");
+            }
+
+            return BadRequest("El alumno que quiere borrar no existe.");
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, $"Ocurrio un problema en el servidor {ex.Message}");
+        }
+    }
 }

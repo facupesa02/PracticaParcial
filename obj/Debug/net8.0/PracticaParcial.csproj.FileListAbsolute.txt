@@ -33,3 +33,4 @@ C:\Users\facup\OneDrive\Desktop\Software\Programacion II\EjercicioParcial\obj\De
 C:\Users\facup\OneDrive\Desktop\Software\Programacion II\EjercicioParcial\obj\Debug\net8.0\PracticaParcial.pdb
 C:\Users\facup\OneDrive\Desktop\Software\Programacion II\EjercicioParcial\obj\Debug\net8.0\PracticaParcial.genruntimeconfig.cache
 C:\Users\facup\OneDrive\Desktop\Software\Programacion II\EjercicioParcial\obj\Debug\net8.0\ref\PracticaParcial.dll
+C:\Users\facup\OneDrive\Desktop\Software\Programacion II\EjercicioParcial\obj\Debug\net8.0\PracticaParcial.sourcelink.json

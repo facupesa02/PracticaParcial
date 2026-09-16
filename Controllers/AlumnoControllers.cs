@@ -79,7 +79,7 @@ public class StudentControllers : ControllerBase
 
             if(newStudent.Name is null || newStudent.Name == "" || newStudent.Name == "string")
             {
-                return BadRequest("El alumno debe rsgistrar un nombre.");
+                return BadRequest("El alumno debe rsgistrar un Name.");
             }
 
             if(newStudent.Surname is null || newStudent.Surname == "" || newStudent.Surname == "string")
@@ -123,7 +123,7 @@ public class StudentControllers : ControllerBase
 
             if (string.IsNullOrWhiteSpace(StudentModificado.Name) || StudentModificado.Name == "string")
             {
-                return BadRequest("El alumno debe registrar un nombre.");
+                return BadRequest("El alumno debe registrar un Name.");
             }
 
             if (string.IsNullOrWhiteSpace(StudentModificado.Surname) || StudentModificado.Surname == "string")
@@ -165,5 +165,38 @@ public class StudentControllers : ControllerBase
         {
             return StatusCode(500, $"Ocurrio un problema en el servidor {ex.Message}");
         }
+    }
+
+    [HttpGet("Search/{Name}")]
+    public IActionResult GetName(string Name)
+    {
+        try
+        {
+            bool exists = students.Any(s => s.Name == Name);
+
+            if (exists)
+            {
+                var name = students.Where(s => s.Name == Name).ToList();
+                return Ok(name);
+            }
+
+            return BadRequest("El alumno con ese nombre no se encuentra registrado.");    
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, $"Ocurrio un problema en el servidor {ex.Message}");
+        }
+    }
+
+    [HttpGet("OrderSurname")]
+    public IActionResult OrderBy()
+    {
+        if(students.Count == 0)
+        {
+            return NotFound("No hay alumnos registrados aun.");
+        }
+
+        var orderList = students.OrderBy(s => s.Surname).Select(s => s.Surname).ToList();
+        return Ok(orderList);
     }
 }
